@@ -1,5 +1,5 @@
 const Tour = require('../models/tourModel');
-const APIfeatures = require('../utils/apiFeatures');
+const APIFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
@@ -11,8 +11,7 @@ exports.aliasTopTours = (req, res, next) => {
 };
 
 exports.getAllTours = catchAsync(async (req, res, next) => {
-  // Execute query
-  const features = new APIfeatures(Tour.find(), req.query)
+  const features = new APIFeatures(Tour.find(), req.query)
     .filter()
     .sort()
     .limitFields()
@@ -30,18 +29,17 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 });
 
 exports.getTour = catchAsync(async (req, res, next) => {
-  const tours = await Tour.findById(req.params.id);
+  const tour = await Tour.findById(req.params.id);
   // Tour.findOne({ _id: req.params.id })
 
-  if (!tours) {
+  if (!tour) {
     return next(new AppError('No tour found with that ID', 404));
   }
 
   res.status(200).json({
     status: 'success',
-    results: tours.length,
     data: {
-      tours,
+      tour,
     },
   });
 });
@@ -97,7 +95,7 @@ exports.getTourStats = catchAsync(async (req, res, next) => {
       $group: {
         _id: { $toUpper: '$difficulty' },
         numTours: { $sum: 1 },
-        numRatings: { $sum: '$ratingQuantity' },
+        numRatings: { $sum: '$ratingsQuantity' },
         avgRating: { $avg: '$ratingsAverage' },
         avgPrice: { $avg: '$price' },
         minPrice: { $min: '$price' },
@@ -108,8 +106,8 @@ exports.getTourStats = catchAsync(async (req, res, next) => {
       $sort: { avgPrice: 1 },
     },
     // {
-    //   $match: { _id: { $ne: 'EASY' } },
-    // },
+    //   $match: { _id: { $ne: 'EASY' } }
+    // }
   ]);
 
   res.status(200).json({
@@ -121,7 +119,7 @@ exports.getTourStats = catchAsync(async (req, res, next) => {
 });
 
 exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
-  const year = req.params.year * 1;
+  const year = req.params.year * 1; // 2021
 
   const plan = await Tour.aggregate([
     {
